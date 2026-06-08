@@ -22,7 +22,7 @@ const wishesData = [
 
 // ─── Default note ────────────────────────────────────────
 function getDefaultNote(name) {
-  return `Dearest ${name},\n\nOn this beautiful day, I want you to know how incredibly special you are to me. Your presence makes the world brighter, your laughter is the best music I know, and your kindness inspires everyone around you.\n\nKeep being the extraordinary person you are. Today and every day, you deserve nothing but the absolute best.\n\nWith all my love,`;
+  return `Dearest ${name},\n\nHappy Birthday🎈...for my yellow💛. I'm really sorry for our argument and for not talking these past days. I miss you a lot. You are very special to me and I never wanted to hurt you. Hope your day is as beautiful as you.\n\nI hope you can understand me. I value our friendship a lot. Hope we talk soon and fix everything ok!!\n\nWith all my love,`;
 }
 
 // ─── Background Music ─────────────────────────────────────
@@ -117,7 +117,7 @@ function populatePage() {
 
   document.getElementById('ageBadge').textContent  = `🎂 Turning ${personAge} Today!`;
   document.getElementById('heroName').textContent   = personName;
-  document.getElementById('heroTagline').textContent = `Wishing the most magical birthday to someone truly extraordinary.`;
+  document.getElementById('heroTagline').textContent = `Sometimes the most unexpected friendships become the most special ones💛`;
   document.getElementById('heroDate').textContent   = `📅 Born: ${formatDate(personDOB)}`;
   startNextBdayCountdown(personDOB);
 
@@ -178,7 +178,7 @@ function spawnFloatingEmojis() {
   if (!container) return;
   
   container.innerHTML = '';
-  const emojis = ['🎉','🎊','✨','🌟','💖','🎂','🎁','🌸','💫','🥂','🎈','💕'];
+  const emojis = ['🎉','💛','✨','🌟','💖','🎂','🎁','🌸','💫','🥂','🎈','💛'];
   for (let i = 0; i < 18; i++) {
     const el = document.createElement('span');
     el.className = 'floating-emoji';
@@ -619,12 +619,12 @@ function startFunStats(dobStr) {
 // ════════════════════════════════════════════════════════
 let giftOpened = false;
 const giftMessages = [
-  'You are someone special and a reason to smile every single day. 💛',
-  'The world is brighter, louder, and more beautiful because you are in it. 🌟',
+  "If happiness had a color, it would look exactly like you 💛",
+  "The world is brighter, louder, and more beautiful because you are in it. 🌟",
   "Your laugh is the best song. Your heart is the best gift. 💖",
   "Today the universe wrapped all its magic into one person — YOU. ✨",
   "Keep being unapologetically, wonderfully you. The world needs exactly that. 🦋",
-  "Every candle you blow out leaves a wish in the air. May all yours come true. 🕯️",
+  "You are my yellow forever, the warmth my heart never wants to lose. ✨",
 ];
 
 function openGift() {
@@ -786,23 +786,61 @@ function drawStarMap(z) {
   });
 }
 
-// ════════════════════════════════════════════════════════
-//  INIT ALL FEATURES (called from startWishing via setTimeout)
-// ════════════════════════════════════════════════════════
-function initAllFeatures() {
-  const age = personDOB ? (new Date().getFullYear() - new Date(personDOB).getFullYear()) : 5;
-  // Set candle count for 3D cake before init
-  window._cakeCandleCount = Math.min(Math.max(age || 5, 1), 10);
-  totalCandles = window._cakeCandleCount;
-  candlesOut = 0;
-  // Init 3D cake (replaces old initCandles)
-  setTimeout(() => {
-    if (typeof initCake3D === 'function') initCake3D();
-  }, 100);
-  // Init 3D gift box
-  setTimeout(() => {
-    if (typeof initGift3D === 'function') initGift3D();
-  }, 150);
-  startFunStats(personDOB);
-  initZodiac(personDOB);
+   //MEMORY AUDIO ↔ BACKGROUND MUSIC FADE
+   //================================================ 
+
+const bgMusic = document.getElementById('bgMusic');
+
+function fadeVolume(audio, target, duration = 1200) {
+  const start = audio.volume;
+  const steps = 20;
+  const stepTime = duration / steps;
+  const change = (target - start) / steps;
+
+  let current = 0;
+
+  const timer = setInterval(() => {
+    current++;
+    audio.volume = Math.max(0, Math.min(1, start + change * current));
+
+    if (current >= steps) {
+      clearInterval(timer);
+    }
+  }, stepTime);
 }
+
+const memoryAudios = document.querySelectorAll('.memory-card audio');
+
+memoryAudios.forEach(audio => {
+
+  audio.addEventListener('play', () => {
+
+    memoryAudios.forEach(other => {
+      if (other !== audio && !other.paused) {
+        other.pause();
+        other.currentTime = 0;
+      }
+    });
+
+    if (bgMusic && !bgMusic.paused) {
+      fadeVolume(bgMusic, 0.1, 1200);
+    }
+  });
+
+  audio.addEventListener('ended', () => {
+    if (bgMusic) {
+      fadeVolume(bgMusic, 1, 1200);
+    }
+  });
+
+  audio.addEventListener('pause', () => {
+    if (
+      bgMusic &&
+      audio.currentTime < audio.duration &&
+      [...memoryAudios].every(a => a.paused)
+    ) {
+      fadeVolume(bgMusic, 1, 1200);
+    }
+  });
+
+});
